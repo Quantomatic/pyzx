@@ -50,6 +50,7 @@ from typing import Tuple, List, Dict, Set, FrozenSet
 from typing import Any, Callable, TypeVar, Optional, Union
 from typing_extensions import Literal
 
+from collections import Counter
 from fractions import Fraction
 import itertools
 
@@ -99,8 +100,9 @@ def match_bialg_parallel(
        tries to find as many as possible.
     :rtype: List of 4-tuples ``(v1, v2, neighbors_of_v1,neighbors_of_v2)``
     """
-    if matchf is not None: candidates = set([e for e in g.edges() if matchf(e)])
-    else: candidates = g.edge_set()
+    if matchf is not None: candidates_set = set([e for e in g.edges() if matchf(e)])
+    else: candidates_set = g.edge_set()
+    candidates = list(Counter(candidates_set).elements())
     phases = g.phases()
     types = g.types()
 
@@ -123,9 +125,9 @@ def match_bialg_parallel(
                 all([types[n] == v0t and phases[n] == 0 for n in v1n])):
                 i += 1
                 for v in v0n:
-                    for c in g.incident_edges(v): candidates.discard(c)
+                    for c in g.incident_edges(v): candidates.remove(c)
                 for v in v1n:
-                    for c in g.incident_edges(v): candidates.discard(c)
+                    for c in g.incident_edges(v): candidates.remove(c)
                 m.append((v0,v1,v0n,v1n))
     return m
 
